@@ -1,0 +1,7 @@
+{
+  "name": "ScanTable Pro",
+  "description": "Convert physical paper sheets with tabular data into Excel files using advanced Gemini Vision OCR.",
+  "requestFramePermissions": [
+    "camera"
+  ]
+}
