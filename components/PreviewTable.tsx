@@ -13,7 +13,6 @@ const PreviewTable: React.FC<PreviewTableProps> = ({ data, onDownload, onReset, 
   const [isEditing, setIsEditing] = useState(false);
   const [localData, setLocalData] = useState<TableData>(data);
 
-  // Sync local data if props change (e.g., after a new scan)
   useEffect(() => {
     setLocalData(data);
   }, [data]);
@@ -42,79 +41,70 @@ const PreviewTable: React.FC<PreviewTableProps> = ({ data, onDownload, onReset, 
   };
 
   return (
-    <div className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
-      <div className="p-4 border-b border-gray-100 flex flex-wrap gap-4 justify-between items-center bg-gray-50/50">
+    <div className="bg-white rounded-2xl shadow-xl border border-gray-200 overflow-hidden flex flex-col max-h-[85vh]">
+      <div className="p-4 border-b border-gray-100 flex flex-col sm:flex-row gap-4 justify-between items-start sm:items-center bg-gray-50/80 backdrop-blur-md sticky top-0 z-20">
         <div>
-          <h3 className="font-semibold text-gray-900">Extraction Results</h3>
+          <h3 className="font-bold text-gray-900">Extracted Table</h3>
           <p className="text-xs text-gray-500">
-            {isEditing ? 'Editing mode: click on any cell to modify its content.' : 'Review and verify the data before downloading.'}
+            {isEditing ? 'Editing cells' : 'Review and verify'}
           </p>
         </div>
-        <div className="flex flex-wrap gap-2">
+        <div className="flex w-full sm:w-auto gap-2">
           {!isEditing ? (
             <>
               <button
-                onClick={onReset}
-                className="text-sm font-medium text-gray-500 hover:text-gray-700 px-3 py-1.5 rounded-md transition"
-              >
-                Discard
-              </button>
-              <button
                 onClick={() => setIsEditing(true)}
-                className="text-sm font-medium text-indigo-600 bg-indigo-50 border border-indigo-100 px-4 py-1.5 rounded-md hover:bg-indigo-100 transition flex items-center gap-2"
+                className="flex-1 sm:flex-none text-xs sm:text-sm font-bold text-indigo-600 bg-white border border-indigo-200 px-3 py-2 rounded-xl hover:bg-indigo-50 transition flex items-center justify-center gap-2"
               >
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                 </svg>
-                Edit Data
+                Edit
               </button>
               <button
                 onClick={onDownload}
-                className="bg-green-600 text-white text-sm font-medium px-4 py-1.5 rounded-md hover:bg-green-700 transition flex items-center gap-2 shadow-sm"
+                className="flex-1 sm:flex-none bg-indigo-600 text-white text-xs sm:text-sm font-bold px-4 py-2 rounded-xl hover:bg-indigo-700 transition flex items-center justify-center gap-2 shadow-md shadow-indigo-100"
               >
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
                 </svg>
-                Download Excel
+                Excel
               </button>
             </>
           ) : (
             <>
               <button
                 onClick={cancelChanges}
-                className="text-sm font-medium text-gray-500 hover:text-gray-700 px-3 py-1.5 rounded-md transition"
+                className="flex-1 sm:flex-none text-sm font-bold text-gray-500 px-3 py-2"
               >
                 Cancel
               </button>
               <button
                 onClick={saveChanges}
-                className="bg-indigo-600 text-white text-sm font-medium px-4 py-1.5 rounded-md hover:bg-indigo-700 transition flex items-center gap-2"
+                className="flex-1 sm:flex-none bg-green-600 text-white text-sm font-bold px-4 py-2 rounded-xl hover:bg-green-700 transition flex items-center justify-center gap-2"
               >
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                </svg>
-                Save Changes
+                Save
               </button>
             </>
           )}
         </div>
       </div>
       
-      <div className="overflow-x-auto max-h-[60vh]">
-        <table className="w-full text-left border-collapse table-fixed min-w-[800px]">
-          <thead className="sticky top-0 bg-white border-b border-gray-200 z-10">
+      <div className="overflow-auto flex-1 bg-white">
+        <table className="w-full text-left border-separate border-spacing-0">
+          <thead className="sticky top-0 bg-gray-50 z-10">
             <tr>
               {localData.headers.map((header, i) => (
-                <th key={i} className="px-6 py-3 text-xs font-semibold text-gray-700 uppercase tracking-wider bg-gray-50 border-r border-gray-100 last:border-r-0">
+                <th key={i} className="px-4 py-3 text-[10px] font-bold text-gray-500 uppercase tracking-wider border-b border-r border-gray-100 last:border-r-0 min-w-[150px]">
                   {isEditing ? (
                     <input
                       type="text"
-                      className="w-full bg-indigo-50/30 border border-transparent focus:border-indigo-400 focus:bg-white rounded px-2 py-1 outline-none transition"
+                      className="w-full bg-white border border-gray-200 focus:border-indigo-500 rounded-md px-2 py-1 outline-none text-gray-900 font-medium"
                       value={header}
                       onChange={(e) => handleHeaderChange(i, e.target.value)}
                     />
                   ) : (
-                    <div className="px-2 py-1">{header}</div>
+                    <div className="px-2 py-1 truncate">{header}</div>
                   )}
                 </th>
               ))}
@@ -122,13 +112,13 @@ const PreviewTable: React.FC<PreviewTableProps> = ({ data, onDownload, onReset, 
           </thead>
           <tbody className="divide-y divide-gray-100">
             {localData.rows.map((row, rowIndex) => (
-              <tr key={rowIndex} className="hover:bg-gray-50/50 transition">
+              <tr key={rowIndex} className="hover:bg-indigo-50/20 transition group">
                 {row.map((cell, cellIndex) => (
-                  <td key={cellIndex} className="px-6 py-2 text-sm text-gray-600 border-r border-gray-50 last:border-r-0">
+                  <td key={cellIndex} className="px-4 py-2 text-sm text-gray-600 border-r border-gray-50 last:border-r-0">
                     {isEditing ? (
                       <textarea
                         rows={1}
-                        className="w-full bg-white border border-gray-200 focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 rounded px-2 py-1 outline-none transition resize-none"
+                        className="w-full bg-white border border-transparent group-hover:border-gray-200 focus:border-indigo-400 focus:ring-4 focus:ring-indigo-100 rounded-lg px-2 py-1.5 outline-none transition resize-none text-sm min-h-[38px] flex items-center"
                         value={cell}
                         onChange={(e) => handleCellChange(rowIndex, cellIndex, e.target.value)}
                         onInput={(e) => {
@@ -138,7 +128,7 @@ const PreviewTable: React.FC<PreviewTableProps> = ({ data, onDownload, onReset, 
                         }}
                       />
                     ) : (
-                      <div className="px-2 py-1 whitespace-pre-wrap break-words">{cell}</div>
+                      <div className="px-2 py-1.5 whitespace-pre-wrap break-words min-h-[38px]">{cell || <span className="text-gray-300 italic">empty</span>}</div>
                     )}
                   </td>
                 ))}
@@ -148,11 +138,15 @@ const PreviewTable: React.FC<PreviewTableProps> = ({ data, onDownload, onReset, 
         </table>
       </div>
 
-      {localData.rows.length === 0 && (
-        <div className="p-12 text-center text-gray-500 italic">
-          No table data found in the image. Try a clearer scan.
-        </div>
-      )}
+      <div className="p-4 bg-gray-50 border-t border-gray-100 flex justify-between items-center md:hidden">
+        <button
+          onClick={onReset}
+          className="text-xs font-bold text-red-500 uppercase tracking-widest"
+        >
+          Discard All
+        </button>
+        <span className="text-[10px] text-gray-400"> Swipe → to view columns </span>
+      </div>
     </div>
   );
 };

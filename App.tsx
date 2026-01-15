@@ -19,7 +19,6 @@ const App: React.FC = () => {
       setStatus(AppStatus.PREPROCESSING);
       setError(null);
 
-      // Convert file to base64
       const reader = new FileReader();
       reader.onload = async (e) => {
         const base64 = e.target?.result as string;
@@ -44,7 +43,7 @@ const App: React.FC = () => {
 
   const handleDownload = () => {
     if (extractedData) {
-      const exportName = fileName.split('.')[0] + '.xlsx';
+      const exportName = fileName.split('.')[0].replace(/\s+/g, '_') + '.xlsx';
       downloadAsExcel(extractedData, exportName);
     }
   };
@@ -60,54 +59,45 @@ const App: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 pb-20">
+    <div className="min-h-screen bg-gray-50 pb-10 flex flex-col">
       <Header />
       
-      <main className="max-w-7xl mx-auto px-4 py-12 sm:px-6 lg:px-8">
-        <div className="text-center mb-12">
-          <h1 className="text-4xl font-extrabold text-gray-900 tracking-tight sm:text-5xl">
-            Physical Paper to <span className="text-indigo-600">Digital Excel</span>
+      <main className="flex-1 max-w-7xl mx-auto w-full px-4 py-8 md:py-12 sm:px-6 lg:px-8">
+        <div className="text-center mb-8 md:mb-12">
+          <h1 className="text-3xl md:text-5xl font-extrabold text-gray-900 tracking-tight">
+            Scan to <span className="text-indigo-600">Excel</span>
           </h1>
-          <p className="mt-4 text-xl text-gray-500 max-w-2xl mx-auto">
-            Our AI-powered engine uses Gemini Vision to detect tables and extract structured data from your scans with unmatched precision.
+          <p className="mt-4 text-sm md:text-lg text-gray-500 max-w-2xl mx-auto">
+            Professional OCR for physical documents. Just snap a photo or upload a file.
           </p>
         </div>
 
-        <div className="max-w-5xl mx-auto">
+        <div className="max-w-4xl mx-auto w-full">
           {status === AppStatus.IDLE && (
             <FileUploader onFileSelect={handleFileSelect} isLoading={false} />
           )}
 
           {(status === AppStatus.PREPROCESSING || status === AppStatus.EXTRACTING) && (
-            <div className="bg-white rounded-2xl p-16 shadow-sm border border-gray-200 flex flex-col items-center">
-              <div className="relative w-20 h-20 mb-6">
+            <div className="bg-white rounded-3xl p-10 md:p-16 shadow-xl border border-gray-100 flex flex-col items-center animate-pulse">
+              <div className="relative w-16 h-16 md:w-20 md:h-20 mb-6">
                 <div className="absolute inset-0 border-4 border-indigo-100 rounded-full"></div>
                 <div className="absolute inset-0 border-4 border-indigo-600 rounded-full border-t-transparent animate-spin"></div>
               </div>
-              <h3 className="text-xl font-bold text-gray-900">
-                {status === AppStatus.PREPROCESSING ? 'Enhancing Image...' : 'Analyzing Table Structure...'}
+              <h3 className="text-lg md:text-xl font-bold text-gray-900 text-center">
+                {status === AppStatus.PREPROCESSING ? 'Optimizing Image...' : 'Extracting Data...'}
               </h3>
-              <p className="text-gray-500 mt-2">This usually takes about 5-10 seconds depending on complexity.</p>
-              
-              <div className="mt-8 w-full max-w-xs bg-gray-100 rounded-full h-2 overflow-hidden">
-                <div 
-                  className="bg-indigo-600 h-full transition-all duration-500 ease-out" 
-                  style={{ width: status === AppStatus.PREPROCESSING ? '30%' : '75%' }}
-                ></div>
-              </div>
+              <p className="text-gray-400 mt-2 text-xs md:text-sm text-center">Using Gemini 3.0 Flash for ultra-fast processing</p>
             </div>
           )}
 
           {status === AppStatus.REVIEW && extractedData && (
-            <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
-               <div className="mb-4 flex items-center justify-between">
-                <div className="flex items-center gap-2 text-sm text-green-700 bg-green-50 px-3 py-1 rounded-full border border-green-100 font-medium">
-                  <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-                  </svg>
-                  Extraction complete
+            <div className="space-y-4 animate-in fade-in slide-in-from-bottom-4 duration-500">
+               <div className="flex items-center justify-between px-2">
+                <div className="flex items-center gap-1.5 text-[10px] md:text-xs font-bold text-green-600 uppercase tracking-widest bg-green-50 px-3 py-1.5 rounded-full">
+                  <span className="w-2 h-2 bg-green-500 rounded-full animate-ping"></span>
+                  Ready for review
                 </div>
-                <span className="text-xs font-medium text-gray-400 bg-gray-100 px-2 py-1 rounded">Source: {fileName}</span>
+                <span className="text-[10px] md:text-xs font-medium text-gray-400 truncate max-w-[150px]">{fileName}</span>
               </div>
               <PreviewTable 
                 data={extractedData} 
@@ -119,83 +109,67 @@ const App: React.FC = () => {
           )}
 
           {status === AppStatus.ERROR && (
-            <div className="bg-red-50 rounded-2xl p-12 border border-red-100 text-center shadow-sm">
+            <div className="bg-white rounded-3xl p-8 md:p-12 border-2 border-red-50 text-center shadow-xl">
               <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
                 <svg className="w-8 h-8 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
                 </svg>
               </div>
-              <h3 className="text-lg font-bold text-red-900">Something went wrong</h3>
-              <p className="text-red-700 mt-2">{error || 'An error occurred while processing the file.'}</p>
+              <h3 className="text-lg font-bold text-gray-900">Extraction Failed</h3>
+              <p className="text-gray-500 mt-2 text-sm">{error || 'Please try again with a clearer photo.'}</p>
               <button
                 onClick={reset}
-                className="mt-6 bg-red-600 text-white px-6 py-2 rounded-lg font-medium hover:bg-red-700 transition shadow-sm active:scale-95"
+                className="mt-6 w-full md:w-auto bg-gray-900 text-white px-8 py-3 rounded-2xl font-bold hover:bg-black transition active:scale-95"
               >
-                Try Again
+                Try Another Scan
               </button>
             </div>
           )}
         </div>
 
-        {/* Feature Grid */}
+        {/* Informational Section */}
         {status === AppStatus.IDLE && (
-          <div className="mt-24 grid md:grid-cols-3 gap-8 text-center">
-            <div className="p-6 bg-white rounded-2xl border border-gray-100 shadow-sm hover:shadow-md transition">
-              <div className="w-12 h-12 bg-indigo-50 rounded-xl flex items-center justify-center mx-auto mb-4 text-indigo-600">
-                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5.882V19.24a1.76 1.76 0 01-3.417.592l-2.147-6.15M18 13a3 3 0 100-6M5.436 13.683A4.001 4.001 0 017 6h1.832c4.1 0 7.625-1.234 9.168-3v14c-1.543-1.766-5.067-3-9.168-3H7a3.988 3.988 0 01-1.564-.317z" />
-                </svg>
-              </div>
-              <h4 className="font-bold text-gray-900">AI Deskewing</h4>
-              <p className="text-gray-500 text-sm mt-2">Automatically fixes tilted scans and camera photos for perfect table alignment.</p>
-            </div>
-            <div className="p-6 bg-white rounded-2xl border border-gray-100 shadow-sm hover:shadow-md transition">
-              <div className="w-12 h-12 bg-indigo-50 rounded-xl flex items-center justify-center mx-auto mb-4 text-indigo-600">
-                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
-                </svg>
-              </div>
-              <h4 className="font-bold text-gray-900">Manual Correction</h4>
-              <p className="text-gray-500 text-sm mt-2">Fix extraction errors instantly with our intuitive inline spreadsheet-style editor.</p>
-            </div>
-            <div className="p-6 bg-white rounded-2xl border border-gray-100 shadow-sm hover:shadow-md transition">
-              <div className="w-12 h-12 bg-indigo-50 rounded-xl flex items-center justify-center mx-auto mb-4 text-indigo-600">
-                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
-                </svg>
-              </div>
-              <h4 className="font-bold text-gray-900">Privacy First</h4>
-              <p className="text-gray-500 text-sm mt-2">Files are processed in-memory and never stored. Your document's security is our priority.</p>
-            </div>
+          <div className="mt-16 md:mt-24 grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8">
+            <FeatureCard 
+              icon={<path d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />}
+              title="Snap & Convert"
+              desc="Use your phone camera to scan sheets directly. Perfect for mobile field work."
+            />
+            <FeatureCard 
+              icon={<path d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />}
+              title="Excel Export"
+              desc="Get fully structured .xlsx files with formatting and columns preserved."
+            />
+             <FeatureCard 
+              icon={<path d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />}
+              title="Smart Edit"
+              desc="Correct AI results on the fly with our powerful spreadsheet-style interface."
+            />
           </div>
         )}
       </main>
 
-      {/* Sticky Quick Access Bar (Responsive CTA) */}
-      <div className="fixed bottom-8 right-8 z-40 md:hidden">
-        <button 
-          onClick={() => status !== AppStatus.IDLE && reset()}
-          className="bg-indigo-600 text-white p-4 rounded-full shadow-lg hover:bg-indigo-700 transition active:scale-95"
-        >
-          {status === AppStatus.IDLE ? (
-            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-            </svg>
-          ) : (
-            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-            </svg>
-          )}
-        </button>
-      </div>
-      
-      <footer className="mt-24 border-t border-gray-200 py-12">
-        <div className="max-w-7xl mx-auto px-4 text-center text-gray-400 text-sm">
-          <p>&copy; {new Date().getFullYear()} ScanTable Pro. Powered by Gemini Flash.</p>
+      <footer className="mt-12 md:mt-auto border-t border-gray-100 py-8 bg-white">
+        <div className="max-w-7xl mx-auto px-4 text-center">
+          <p className="text-gray-400 text-[10px] md:text-xs font-medium uppercase tracking-widest">
+            ScanTable Pro &copy; {new Date().getFullYear()} &bull; Enterprise Grade OCR
+          </p>
         </div>
       </footer>
     </div>
   );
 };
+
+const FeatureCard = ({ icon, title, desc }: { icon: React.ReactNode, title: string, desc: string }) => (
+  <div className="p-6 md:p-8 bg-white rounded-3xl border border-gray-100 shadow-sm hover:shadow-xl transition-shadow duration-300">
+    <div className="w-12 h-12 bg-indigo-50 rounded-2xl flex items-center justify-center mb-6 text-indigo-600">
+      <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        {icon}
+      </svg>
+    </div>
+    <h4 className="font-bold text-gray-900 mb-2">{title}</h4>
+    <p className="text-gray-500 text-sm leading-relaxed">{desc}</p>
+  </div>
+);
 
 export default App;
